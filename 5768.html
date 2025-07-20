@@ -1,0 +1,837 @@
+
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍱บันทึกข้อมูลกล่องข้าว-แก้วน้ำ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            font-family: 'Sarabun', sans-serif;
+        }
+        
+        .tab-active {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #10b981;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #10b981;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .image-preview-text {
+            position: absolute;
+            color: #10b981;
+        }
+        
+        .delete-image-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+        
+        .delete-image-btn:hover {
+            opacity: 1;
+            background-color: #dc2626;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .success {
+            background-color: #10b981;
+        }
+        
+        .error {
+            background-color: #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="loading" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p class="mt-3 text-emerald-600 font-medium">กำลังดำเนินการ...</p>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+    
+    <div class="container mx-auto px-4 py-6 max-w-3xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-emerald-600">
+                🍱 กล่องข้าว 🥤แก้วน้ำ
+            </h1>
+            <p class="text-gray-600 mt-2 text-sm">เวชศาสตร์ฟื้นฟูหัวใจและปอด</p>
+        </header>
+        
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="flex border-b">
+                <button id="tab-input" class="tab-active flex-1 py-3 font-medium text-center transition-colors duration-200 focus:outline-none">
+                    <i class="fas fa-edit mr-2"></i>บันทึกข้อมูล
+                </button>
+                <button id="tab-summary" class="flex-1 py-3 font-medium text-center text-gray-600 hover:bg-gray-100 transition-colors duration-200 focus:outline-none">
+                    <i class="fas fa-chart-bar mr-2"></i>สรุปข้อมูล
+                </button>
+                <button id="tab-ranking" class="flex-1 py-3 font-medium text-center text-gray-600 hover:bg-gray-100 transition-colors duration-200 focus:outline-none">
+                    <i class="fas fa-trophy mr-2"></i>สรุปอันดับ
+                </button>
+            </div>
+            
+            <div id="input-section" class="p-6">
+                <form id="record-form" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                                👤 ชื่อ
+                            </label>
+                            <select id="name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="" disabled selected>เลือกชื่อ</option>
+                                <option value="วารีรัตน์">วารีรัตน์</option>
+                                <option value="เตือนใจ">เตือนใจ</option>
+                                <option value="สุพัตรา">สุพัตรา</option>
+                                <option value="ฐิติมา">ฐิติมา</option>
+                                <option value="อุมาพร">อุมาพร</option>
+                                <option value="เอกธนัช">เอกธนัช</option>
+                                <option value="จิรพงศ์">จิรพงศ์</option>
+                                <option value="นิสา">นิสา</option>
+                                <option value="อัจฉรา">อัจฉรา</option>
+                                <option value="ไพโรจน์">ไพโรจน์</option>
+                                <option value="อรรถพล">อรรถพล</option>
+                                <option value="มณฑา">มณฑา</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
+                                📅 วันที่
+                            </label>
+                            <input type="date" id="date" name="date" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                🍱 รูปกล่องข้าว
+                            </label>
+                            <div class="image-preview" id="lunchbox-preview">
+                                <span class="image-preview-text">คลิกเพื่อเลือกรูปภาพ</span>
+                            </div>
+                            <input type="file" id="lunchbox-image" name="lunchbox-image" accept="image/*" class="hidden">
+                            <button type="button" id="lunchbox-upload-btn" class="mt-2 w-full bg-emerald-100 text-emerald-700 py-2 px-4 rounded-md hover:bg-emerald-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                📷 เลือกรูปกล่องข้าว
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                🥤 รูปแก้วน้ำ
+                            </label>
+                            <div class="image-preview" id="cup-preview">
+                                <span class="image-preview-text">คลิกเพื่อเลือกรูปภาพ</span>
+                            </div>
+                            <input type="file" id="cup-image" name="cup-image" accept="image/*" class="hidden">
+                            <button type="button" id="cup-upload-btn" class="mt-2 w-full bg-emerald-100 text-emerald-700 py-2 px-4 rounded-md hover:bg-emerald-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                📷 เลือกรูปแก้วน้ำ
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-emerald-600 text-white py-3 px-6 rounded-md hover:bg-emerald-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                        💾 บันทึกข้อมูล
+                    </button>
+                </form>
+            </div>
+            
+            <div id="summary-section" class="p-6 hidden">
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="summary-name" class="block text-sm font-medium text-gray-700 mb-1">
+                                👤 ชื่อ
+                            </label>
+                            <select id="summary-name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="all">ทั้งหมด</option>
+                                <option value="วารีรัตน์">วารีรัตน์</option>
+                                <option value="เตือนใจ">เตือนใจ</option>
+                                <option value="สุพัตรา">สุพัตรา</option>
+                                <option value="ฐิติมา">ฐิติมา</option>
+                                <option value="อุมาพร">อุมาพร</option>
+                                <option value="เอกธนัช">เอกธนัช</option>
+                                <option value="จิรพงศ์">จิรพงศ์</option>
+                                <option value="นิสา">นิสา</option>
+                                <option value="อัจฉรา">อัจฉรา</option>
+                                <option value="ไพโรจน์">ไพโรจน์</option>
+                                <option value="อรรถพล">อรรถพล</option>
+                                <option value="มณฑา">มณฑา</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="summary-start-month" class="block text-sm font-medium text-gray-700 mb-1">
+                                📅 เดือนเริ่มต้น
+                            </label>
+                            <input type="month" id="summary-start-month" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        
+                        <div>
+                            <label for="summary-end-month" class="block text-sm font-medium text-gray-700 mb-1">
+                                📅 เดือนสิ้นสุด
+                            </label>
+                            <input type="month" id="summary-end-month" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                    
+                    <button id="search-btn" class="w-full bg-emerald-600 text-white py-3 px-6 rounded-md hover:bg-emerald-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                        <i class="fas fa-search mr-2"></i>ค้นหาข้อมูล
+                    </button>
+                    
+                    <div class="bg-emerald-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium text-emerald-800 mb-4">สรุปข้อมูล</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-emerald-100">
+                                <div class="flex items-center">
+                                    <div class="bg-emerald-100 p-3 rounded-full">
+                                        <span class="text-2xl">🍱</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-sm text-gray-500">กล่องข้าว</p>
+                                        <p id="lunchbox-count" class="text-2xl font-semibold text-emerald-600">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-emerald-100">
+                                <div class="flex items-center">
+                                    <div class="bg-emerald-100 p-3 rounded-full">
+                                        <span class="text-2xl">🥤</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-sm text-gray-500">แก้วน้ำ</p>
+                                        <p id="cup-count" class="text-2xl font-semibold text-emerald-600">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-emerald-100">
+                                <div class="flex items-center">
+                                    <div class="bg-emerald-100 p-3 rounded-full">
+                                        <span class="text-2xl">📆</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-sm text-gray-500">รวมทั้งหมด</p>
+                                        <p id="total-count" class="text-2xl font-semibold text-emerald-600">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200">
+                            <thead>
+                                <tr class="bg-emerald-50">
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">ลำดับ</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">วันที่</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">ชื่อ</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">กล่องข้าว</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">แก้วน้ำ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-table-body">
+                                <tr>
+                                    <td colspan="5" class="py-4 px-4 text-center text-gray-500">ไม่พบข้อมูล</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="ranking-section" class="p-6 hidden">
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="ranking-start-month" class="block text-sm font-medium text-gray-700 mb-1">
+                                📅 เดือนเริ่มต้น
+                            </label>
+                            <input type="month" id="ranking-start-month" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        
+                        <div>
+                            <label for="ranking-end-month" class="block text-sm font-medium text-gray-700 mb-1">
+                                📅 เดือนสิ้นสุด
+                            </label>
+                            <input type="month" id="ranking-end-month" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                    
+                    <button id="ranking-btn" class="w-full bg-emerald-600 text-white py-3 px-6 rounded-md hover:bg-emerald-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                        🏆แสดงอันดับ 
+                    </button>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- สรุปคะแนนรวมทั้งหมด -->
+                        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-lg border border-emerald-200">
+                            <h3 class="text-lg font-semibold text-emerald-800 mb-4 text-center">
+                                <i class="fas fa-crown mr-2 text-yellow-500"></i>อันดับรวมทั้งหมด
+                            </h3>
+                            <div id="total-ranking" class="space-y-3">
+                                <div class="text-center text-gray-500 py-4">ไม่พบข้อมูล</div>
+                            </div>
+                        </div>
+                        
+                        <!-- สรุปคะแนนกล่องข้าว -->
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200">
+                            <h3 class="text-lg font-semibold text-blue-800 mb-4 text-center">
+                                <span class="mr-2">🍱</span>อันดับกล่องข้าว
+                            </h3>
+                            <div id="lunchbox-ranking" class="space-y-3">
+                                <div class="text-center text-gray-500 py-4">ไม่พบข้อมูล</div>
+                            </div>
+                        </div>
+                        
+                        <!-- สรุปคะแนนแก้วน้ำ -->
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg border border-purple-200">
+                            <h3 class="text-lg font-semibold text-purple-800 mb-4 text-center">
+                                <span class="mr-2">🥤</span>อันดับแก้วน้ำ
+                            </h3>
+                            <div id="cup-ranking" class="space-y-3">
+                                <div class="text-center text-gray-500 py-4">ไม่พบข้อมูล</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyWG-EAs5c-0IJo4nYWjXZZ1t-ExtlbvH2CaUSthcVbAxYQB5ZHg2oWdt2TVNEcDXpDBw/exec';
+        let lunchboxImageData = null;
+        let cupImageData = null;
+        
+        // DOM Elements
+        const tabInput = document.getElementById('tab-input');
+        const tabSummary = document.getElementById('tab-summary');
+        const tabRanking = document.getElementById('tab-ranking');
+        const inputSection = document.getElementById('input-section');
+        const summarySection = document.getElementById('summary-section');
+        const rankingSection = document.getElementById('ranking-section');
+        const recordForm = document.getElementById('record-form');
+        const lunchboxPreview = document.getElementById('lunchbox-preview');
+        const cupPreview = document.getElementById('cup-preview');
+        const lunchboxUploadBtn = document.getElementById('lunchbox-upload-btn');
+        const cupUploadBtn = document.getElementById('cup-upload-btn');
+        const lunchboxImageInput = document.getElementById('lunchbox-image');
+        const cupImageInput = document.getElementById('cup-image');
+        const searchBtn = document.getElementById('search-btn');
+        const rankingBtn = document.getElementById('ranking-btn');
+        const loading = document.getElementById('loading');
+        const notification = document.getElementById('notification');
+        
+        // Tab switching
+        tabInput.addEventListener('click', () => {
+            tabInput.classList.add('tab-active');
+            tabSummary.classList.remove('tab-active');
+            tabRanking.classList.remove('tab-active');
+            inputSection.classList.remove('hidden');
+            summarySection.classList.add('hidden');
+            rankingSection.classList.add('hidden');
+        });
+        
+        tabSummary.addEventListener('click', () => {
+            tabSummary.classList.add('tab-active');
+            tabInput.classList.remove('tab-active');
+            tabRanking.classList.remove('tab-active');
+            summarySection.classList.remove('hidden');
+            inputSection.classList.add('hidden');
+            rankingSection.classList.add('hidden');
+        });
+        
+        tabRanking.addEventListener('click', () => {
+            tabRanking.classList.add('tab-active');
+            tabInput.classList.remove('tab-active');
+            tabSummary.classList.remove('tab-active');
+            rankingSection.classList.remove('hidden');
+            inputSection.classList.add('hidden');
+            summarySection.classList.add('hidden');
+        });
+        
+        // Image upload handling
+        lunchboxUploadBtn.addEventListener('click', () => {
+            lunchboxImageInput.click();
+        });
+        
+        cupUploadBtn.addEventListener('click', () => {
+            cupImageInput.click();
+        });
+        
+        lunchboxPreview.addEventListener('click', () => {
+            lunchboxImageInput.click();
+        });
+        
+        cupPreview.addEventListener('click', () => {
+            cupImageInput.click();
+        });
+        
+        lunchboxImageInput.addEventListener('change', (e) => {
+            handleImageUpload(e, lunchboxPreview, (data) => {
+                lunchboxImageData = data;
+            });
+        });
+        
+        cupImageInput.addEventListener('change', (e) => {
+            handleImageUpload(e, cupPreview, (data) => {
+                cupImageData = data;
+            });
+        });
+        
+        // Form submission
+        recordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const date = document.getElementById('date').value;
+            
+            if (!name || !date) {
+                showNotification('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                return;
+            }
+            
+            if (!lunchboxImageData && !cupImageData) {
+                showNotification('กรุณาอัปโหลดรูปภาพอย่างน้อย 1 รูป', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'saveRecord');
+                formData.append('name', name);
+                formData.append('date', date);
+                
+                if (lunchboxImageData) {
+                    formData.append('lunchboxImage', lunchboxImageData.data);
+                    formData.append('lunchboxFileName', lunchboxImageData.fileName);
+                    formData.append('lunchboxMimeType', lunchboxImageData.mimeType);
+                }
+                
+                if (cupImageData) {
+                    formData.append('cupImage', cupImageData.data);
+                    formData.append('cupFileName', cupImageData.fileName);
+                    formData.append('cupMimeType', cupImageData.mimeType);
+                }
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('บันทึกข้อมูลสำเร็จ', 'success');
+                    resetForm();
+                } else {
+                    showNotification('เกิดข้อผิดพลาด: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+                console.error(error);
+            } finally {
+                showLoading(false);
+            }
+        });
+        
+        // Search button
+        searchBtn.addEventListener('click', async () => {
+            const name = document.getElementById('summary-name').value;
+            const startMonth = document.getElementById('summary-start-month').value;
+            const endMonth = document.getElementById('summary-end-month').value;
+            
+            showLoading(true);
+            
+            try {
+                const params = new URLSearchParams({
+                    action: 'getRecords',
+                    name: name,
+                    startMonth: startMonth,
+                    endMonth: endMonth
+                });
+                
+                const response = await fetch(`${API_URL}?${params}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateSummary(result.data);
+                } else {
+                    showNotification('เกิดข้อผิดพลาด: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+                console.error(error);
+            } finally {
+                showLoading(false);
+            }
+        });
+        
+        // Ranking button
+        rankingBtn.addEventListener('click', async () => {
+            const startMonth = document.getElementById('ranking-start-month').value;
+            const endMonth = document.getElementById('ranking-end-month').value;
+            
+            showLoading(true);
+            
+            try {
+                const params = new URLSearchParams({
+                    action: 'getRecords',
+                    name: 'all',
+                    startMonth: startMonth,
+                    endMonth: endMonth
+                });
+                
+                const response = await fetch(`${API_URL}?${params}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateRanking(result.data);
+                } else {
+                    showNotification('เกิดข้อผิดพลาด: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+                console.error(error);
+            } finally {
+                showLoading(false);
+            }
+        });
+        
+        // Helper functions
+        function handleImageUpload(event, previewElement, callback) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                
+                // Create delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.type = 'button';
+                deleteBtn.className = 'delete-image-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                deleteBtn.title = 'ลบรูปภาพ';
+                
+                // Add delete functionality
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    clearImagePreview(previewElement, callback);
+                });
+                
+                // Clear preview
+                while (previewElement.firstChild) {
+                    previewElement.removeChild(previewElement.firstChild);
+                }
+                
+                previewElement.appendChild(img);
+                previewElement.appendChild(deleteBtn);
+                
+                // Get base64 data (remove prefix like "data:image/jpeg;base64,")
+                const base64Data = e.target.result.split(',')[1];
+                
+                callback({
+                    data: base64Data,
+                    fileName: file.name,
+                    mimeType: file.type
+                });
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        function clearImagePreview(previewElement, callback) {
+            // Clear preview
+            while (previewElement.firstChild) {
+                previewElement.removeChild(previewElement.firstChild);
+            }
+            
+            // Add placeholder text
+            const placeholderText = document.createElement('span');
+            placeholderText.className = 'image-preview-text';
+            placeholderText.textContent = 'คลิกเพื่อเลือกรูปภาพ';
+            previewElement.appendChild(placeholderText);
+            
+            // Clear image data
+            callback(null);
+            
+            // Reset file input
+            if (previewElement.id === 'lunchbox-preview') {
+                lunchboxImageInput.value = '';
+            } else if (previewElement.id === 'cup-preview') {
+                cupImageInput.value = '';
+            }
+        }
+        
+        function resetForm() {
+            recordForm.reset();
+            
+            // Reset image previews
+            lunchboxPreview.innerHTML = '<span class="image-preview-text">คลิกเพื่อเลือกรูปภาพ</span>';
+            cupPreview.innerHTML = '<span class="image-preview-text">คลิกเพื่อเลือกรูปภาพ</span>';
+            
+            // Reset image data
+            lunchboxImageData = null;
+            cupImageData = null;
+        }
+        
+        function updateSummary(data) {
+            const records = data.records || [];
+            let lunchboxCount = 0;
+            let cupCount = 0;
+            
+            // Update table
+            const tableBody = document.getElementById('results-table-body');
+            tableBody.innerHTML = '';
+            
+            if (records.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5" class="py-4 px-4 text-center text-gray-500">ไม่พบข้อมูล</td>`;
+                tableBody.appendChild(row);
+            } else {
+                records.forEach((record, index) => {
+                    const hasLunchbox = record.lunchboxImageUrl ? 1 : 0;
+                    const hasCup = record.cupImageUrl ? 1 : 0;
+                    
+                    lunchboxCount += hasLunchbox;
+                    cupCount += hasCup;
+                    
+                    const row = document.createElement('tr');
+                    row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                    
+                    const formattedDate = new Date(record.date).toLocaleDateString('th-TH', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    row.innerHTML = `
+                        <td class="py-3 px-4 border-b">${index + 1}</td>
+                        <td class="py-3 px-4 border-b">${formattedDate}</td>
+                        <td class="py-3 px-4 border-b">${record.name}</td>
+                        <td class="py-3 px-4 border-b">
+                            ${record.lunchboxImageUrl ? 
+                                `<a href="${record.lunchboxImageUrl}" target="_blank" class="text-emerald-600 hover:underline">
+                                    <i class="fas fa-check-circle text-emerald-500 mr-1"></i>มี
+                                </a>` : 
+                                '<i class="fas fa-times-circle text-gray-400 mr-1"></i>ไม่มี'}
+                        </td>
+                        <td class="py-3 px-4 border-b">
+                            ${record.cupImageUrl ? 
+                                `<a href="${record.cupImageUrl}" target="_blank" class="text-emerald-600 hover:underline">
+                                    <i class="fas fa-check-circle text-emerald-500 mr-1"></i>มี
+                                </a>` : 
+                                '<i class="fas fa-times-circle text-gray-400 mr-1"></i>ไม่มี'}
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            // Update counters
+            document.getElementById('lunchbox-count').textContent = lunchboxCount;
+            document.getElementById('cup-count').textContent = cupCount;
+            document.getElementById('total-count').textContent = lunchboxCount + cupCount;
+        }
+        
+        function showLoading(show) {
+            if (show) {
+                loading.classList.remove('hidden');
+            } else {
+                loading.classList.add('hidden');
+            }
+        }
+        
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        function updateRanking(data) {
+            const records = data.records || [];
+            
+            // Calculate scores for each person
+            const scores = {};
+            
+            records.forEach(record => {
+                if (!scores[record.name]) {
+                    scores[record.name] = {
+                        lunchbox: 0,
+                        cup: 0,
+                        total: 0
+                    };
+                }
+                
+                if (record.lunchboxImageUrl) {
+                    scores[record.name].lunchbox++;
+                }
+                if (record.cupImageUrl) {
+                    scores[record.name].cup++;
+                }
+                scores[record.name].total = scores[record.name].lunchbox + scores[record.name].cup;
+            });
+            
+            // Sort rankings
+            const totalRanking = Object.entries(scores)
+                .sort((a, b) => b[1].total - a[1].total)
+                .slice(0, 3);
+            
+            const lunchboxRanking = Object.entries(scores)
+                .sort((a, b) => b[1].lunchbox - a[1].lunchbox)
+                .slice(0, 3);
+            
+            const cupRanking = Object.entries(scores)
+                .sort((a, b) => b[1].cup - a[1].cup)
+                .slice(0, 3);
+            
+            // Update UI
+            updateRankingDisplay('total-ranking', totalRanking, 'total');
+            updateRankingDisplay('lunchbox-ranking', lunchboxRanking, 'lunchbox');
+            updateRankingDisplay('cup-ranking', cupRanking, 'cup');
+        }
+        
+        function updateRankingDisplay(elementId, ranking, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '';
+            
+            if (ranking.length === 0) {
+                element.innerHTML = '<div class="text-center text-gray-500 py-4">ไม่พบข้อมูล</div>';
+                return;
+            }
+            
+            const medals = ['🥇', '🥈', '🥉'];
+            const colors = ['text-yellow-600', 'text-gray-600', 'text-orange-600'];
+            
+            ranking.forEach(([name, scores], index) => {
+                const score = type === 'total' ? scores.total : scores[type];
+                const rankDiv = document.createElement('div');
+                rankDiv.className = 'bg-white p-3 rounded-lg shadow-sm border flex items-center justify-between';
+                
+                rankDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">${medals[index]}</span>
+                        <div>
+                            <div class="font-medium ${colors[index]}">${name}</div>
+                            <div class="text-sm text-gray-500">อันดับที่ ${index + 1}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xl font-bold ${colors[index]}">${score}</div>
+                        <div class="text-xs text-gray-500">คะแนน</div>
+                    </div>
+                `;
+                
+                element.appendChild(rankDiv);
+            });
+        }
+        
+        // Set default date to today
+        document.getElementById('date').valueAsDate = new Date();
+        
+        // Set default month values to current month
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+        const currentMonthValue = `${currentYear}-${currentMonth}`;
+        
+        document.getElementById('summary-start-month').value = currentMonthValue;
+        document.getElementById('summary-end-month').value = currentMonthValue;
+        document.getElementById('ranking-start-month').value = currentMonthValue;
+        document.getElementById('ranking-end-month').value = currentMonthValue;
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95a35d6325787b41',t:'MTc1MTY4MTgzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

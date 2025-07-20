@@ -1,0 +1,522 @@
+
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บันทึกกล่องข้าว-แก้วน้ำ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Sarabun', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
+        .glass-effect { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.9); }
+        .loading-spinner { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-white mb-2">🍱 บันทึกกล่องข้าว</h1>
+            <p class="text-green-100">ระบบติดตามกล่องข้าว และแก้วน้ำ</p>
+        </div>
+
+        <!-- Main Form -->
+        <div class="glass-effect rounded-2xl p-6 mb-6 shadow-xl">
+            <form id="recordForm">
+                <!-- Name Selection -->
+                <div class="mb-6">
+                    <label class="block text-green-800 font-semibold mb-3">
+                        👤 เลือกชื่อ
+                    </label>
+                    <select id="nameSelect" class="w-full p-3 border-2 border-green-200 rounded-xl focus:border-green-500 focus:outline-none bg-white">
+                        <option value="">-- เลือกชื่อ --</option>
+                        <option value="วารีรัตน์">วารีรัตน์</option>
+                        <option value="เตือนใจ">เตือนใจ</option>
+                        <option value="สุพัตรา">สุพัตรา</option>
+                        <option value="ฐิติมา">ฐิติมา</option>
+                        <option value="อุมาพร">อุมาพร</option>
+                        <option value="เอกธนัช">เอกธนัช</option>
+                        <option value="จิรพงศ์">จิรพงศ์</option>
+                        <option value="นิสา">นิสา</option>
+                        <option value="อัจฉรา">อัจฉรา</option>
+                        <option value="ไพโรจน์">ไพโรจน์</option>
+                        <option value="อรรถพล">อรรถพล</option>
+                        <option value="มณฑา">มณฑา</option>
+                    </select>
+                </div>
+
+                <!-- Date Selection -->
+                <div class="mb-6">
+                    <label class="block text-green-800 font-semibold mb-3">
+                        📅 เลือกวันที่
+                    </label>
+                    <input type="date" id="dateInput" class="w-full p-3 border-2 border-green-200 rounded-xl focus:border-green-500 focus:outline-none bg-white">
+                </div>
+
+                <!-- Lunch Box Image -->
+                <div class="mb-6">
+                    <label class="block text-green-800 font-semibold mb-3">
+                        🍱 รูปกล่องข้าว
+                    </label>
+                    
+                    <!-- Photo Selection Button -->
+                    <label for="lunchBoxUpload" style="display: block; margin: 20px 0; width: 100%; background-color: #10b981; color: white; font-weight: 600; padding: 12px 16px; border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.2s;">
+                        📷 <strong>แตะเพื่อแนบรูปจากโทรศัพท์</strong>
+                    </label>
+                    <input type="file" id="lunchBoxUpload" accept="image/*" capture="environment" style="display: none;">
+                    
+                    <div id="lunchBoxPreview" class="mt-3 hidden">
+                        <div class="relative">
+                            <img id="lunchBoxImg" class="w-full h-32 object-cover rounded-xl">
+                            <button type="button" id="deleteLunchBoxBtn" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-lg transition duration-200">
+                                ✕
+                            </button>
+                        </div>
+                        <div id="lunchBoxFileName" class="text-sm text-gray-600 mt-2 p-2 bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+
+                <!-- Water Cup Image -->
+                <div class="mb-6">
+                    <label class="block text-green-800 font-semibold mb-3">
+                        🥤 รูปแก้วน้ำ
+                    </label>
+                    
+                    <!-- Photo Selection Button -->
+                    <label for="waterCupUpload" style="display: block; margin: 20px 0; width: 100%; background-color: #10b981; color: white; font-weight: 600; padding: 12px 16px; border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.2s;">
+                        📷 <strong>แตะเพื่อแนบรูปจากโทรศัพท์</strong>
+                    </label>
+                    <input type="file" id="waterCupUpload" accept="image/*" capture="environment" style="display: none;">
+                    
+                    <div id="waterCupPreview" class="mt-3 hidden">
+                        <div class="relative">
+                            <img id="waterCupImg" class="w-full h-32 object-cover rounded-xl">
+                            <button type="button" id="deleteWaterCupBtn" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-lg transition duration-200">
+                                ✕
+                            </button>
+                        </div>
+                        <div id="waterCupFileName" class="text-sm text-gray-600 mt-2 p-2 bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg">
+                    <span id="submitText">💾 บันทึกข้อมูล</span>
+                    <div id="loadingSpinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full loading-spinner ml-2"></div>
+                </button>
+            </form>
+
+            <!-- Status Message -->
+            <div id="statusMessage" class="mt-4 p-3 rounded-xl hidden"></div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="glass-effect rounded-2xl p-6 mb-6 shadow-xl">
+            <h2 class="text-xl font-bold text-green-800 mb-4">📊 สรุปข้อมูล</h2>
+            
+            <!-- Filter Controls -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <select id="filterName" class="p-2 border-2 border-green-200 rounded-lg focus:border-green-500 focus:outline-none bg-white text-sm">
+                    <option value="">ทุกคน</option>
+                    <option value="วารีรัตน์">วารีรัตน์</option>
+                    <option value="เตือนใจ">เตือนใจ</option>
+                    <option value="สุพัตรา">สุพัตรา</option>
+                    <option value="ฐิติมา">ฐิติมา</option>
+                    <option value="อุมาพร">อุมาพร</option>
+                    <option value="เอกธนัช">เอกธนัช</option>
+                    <option value="จิรพงศ์">จิรพงศ์</option>
+                    <option value="นิสา">นิสา</option>
+                    <option value="อัจฉรา">อัจฉรา</option>
+                    <option value="ไพโรจน์">ไพโรจน์</option>
+                    <option value="อรรถพล">อรรถพล</option>
+                    <option value="มณฑา">มณฑา</option>
+                </select>
+                <select id="filterMonth" class="p-2 border-2 border-green-200 rounded-lg focus:border-green-500 focus:outline-none bg-white text-sm">
+                    <option value="">ทุกเดือน</option>
+                    <option value="01">มกราคม</option>
+                    <option value="02">กุมภาพันธ์</option>
+                    <option value="03">มีนาคม</option>
+                    <option value="04">เมษายน</option>
+                    <option value="05">พฤษภาคม</option>
+                    <option value="06">มิถุนายน</option>
+                    <option value="07">กรกฎาคม</option>
+                    <option value="08">สิงหาคม</option>
+                    <option value="09">กันยายน</option>
+                    <option value="10">ตุลาคม</option>
+                    <option value="11">พฤศจิกายน</option>
+                    <option value="12">ธันวาคม</option>
+                </select>
+            </div>
+
+            <button id="loadSummaryBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 mb-4">
+                📈 โหลดข้อมูลสรุป
+            </button>
+
+            <!-- Summary Display -->
+            <div id="summaryDisplay" class="bg-white rounded-xl p-4 border-2 border-green-200">
+                <div class="text-center text-gray-500">กดปุ่ม "โหลดข้อมูลสรุป" เพื่อดูข้อมูล</div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwLSN85KCmqsk5HD4jIesB4y_FVvSn-bt2vZ31e4Z_rgecwG15sDlTV1Ziv4240uDzy/exec',
+            SHEET_ID: '1OjN1b0tq340glf-Dx9gHL6iAiVfpe6xTyImn-D7LrTo',
+            FOLDER_ID: '1ejtVJJmr1hqGd_HztaeMH6dEyi-JQXT3',
+            SHEET_NAME: 'Sheet1'
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default
+            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+            
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Form submission
+            document.getElementById('recordForm').addEventListener('submit', handleFormSubmit);
+            
+            // Image preview for file inputs
+            document.getElementById('lunchBoxUpload').addEventListener('change', (e) => previewImageWithName(e, 'lunchBoxImg', 'lunchBoxPreview', 'lunchBoxFileName'));
+            document.getElementById('waterCupUpload').addEventListener('change', (e) => previewImageWithName(e, 'waterCupImg', 'waterCupPreview', 'waterCupFileName'));
+            
+            // Summary button
+            document.getElementById('loadSummaryBtn').addEventListener('click', loadSummary);
+            
+            // Delete image buttons
+            document.getElementById('deleteLunchBoxBtn').addEventListener('click', deleteLunchBoxImage);
+            document.getElementById('deleteWaterCupBtn').addEventListener('click', deleteWaterCupImage);
+        }
+
+        function previewImageWithName(event, imgId, previewId, fileNameId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(imgId).src = e.target.result;
+                    document.getElementById(previewId).classList.remove('hidden');
+                    if (fileNameId) {
+                        document.getElementById(fileNameId).textContent = `ไฟล์: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+
+
+        function deleteLunchBoxImage() {
+            document.getElementById('lunchBoxUpload').value = '';
+            document.getElementById('lunchBoxPreview').classList.add('hidden');
+            document.getElementById('lunchBoxImg').src = '';
+            document.getElementById('lunchBoxFileName').textContent = '';
+        }
+
+        function deleteWaterCupImage() {
+            document.getElementById('waterCupUpload').value = '';
+            document.getElementById('waterCupPreview').classList.add('hidden');
+            document.getElementById('waterCupImg').src = '';
+            document.getElementById('waterCupFileName').textContent = '';
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('nameSelect').value;
+            const date = document.getElementById('dateInput').value;
+            const lunchBoxFile = document.getElementById('lunchBoxUpload').files[0];
+            const waterCupFile = document.getElementById('waterCupUpload').files[0];
+
+            if (!name || !date) {
+                showStatus('กรุณากรอกชื่อและวันที่', 'error');
+                return;
+            }
+
+            // Show loading state
+            setLoadingState(true);
+            showStatus('กำลังบันทึกข้อมูล...', 'loading');
+
+            try {
+                // Save to local storage first
+                const localRecord = {
+                    id: Date.now(),
+                    name,
+                    date,
+                    timestamp: new Date().toISOString(),
+                    lunchBoxImage: lunchBoxFile ? await fileToBase64(lunchBoxFile) : null,
+                    waterCupImage: waterCupFile ? await fileToBase64(waterCupFile) : null
+                };
+                
+                saveToLocalStorage(localRecord);
+
+                // Prepare URLSearchParams for Google Apps Script
+                const params = new URLSearchParams();
+                params.append('action', 'addRecord');
+                params.append('name', name);
+                params.append('date', date);
+                params.append('sheetId', CONFIG.SHEET_ID);
+                params.append('folderId', CONFIG.FOLDER_ID);
+                params.append('sheetName', CONFIG.SHEET_NAME);
+                
+                // Process lunch box file
+                if (lunchBoxFile) {
+                    console.log('Processing lunch box file:', lunchBoxFile.name, lunchBoxFile.type, 'Size:', lunchBoxFile.size);
+                    const lunchBoxBase64 = await fileToBase64(lunchBoxFile);
+                    // Remove data URL prefix (data:image/jpeg;base64, or similar)
+                    const base64Data = lunchBoxBase64.includes(',') ? lunchBoxBase64.split(',')[1] : lunchBoxBase64;
+                    
+                    // Generate safe filename with proper extension
+                    const fileExt = getMimeTypeExtension(lunchBoxFile.type);
+                    const lunchBoxFileName = `lunchbox_${name.replace(/[^a-zA-Z0-9]/g, '_')}_${date}_${Date.now()}.${fileExt}`;
+                    
+                    params.append('lunchBoxImage', base64Data);
+                    params.append('lunchBoxFileName', lunchBoxFileName);
+                    params.append('lunchBoxMimeType', lunchBoxFile.type);
+                }
+                
+                // Process water cup file
+                if (waterCupFile) {
+                    console.log('Processing water cup file:', waterCupFile.name, waterCupFile.type, 'Size:', waterCupFile.size);
+                    const waterCupBase64 = await fileToBase64(waterCupFile);
+                    // Remove data URL prefix
+                    const base64Data = waterCupBase64.includes(',') ? waterCupBase64.split(',')[1] : waterCupBase64;
+                    
+                    // Generate safe filename with proper extension
+                    const fileExt = getMimeTypeExtension(waterCupFile.type);
+                    const waterCupFileName = `watercup_${name.replace(/[^a-zA-Z0-9]/g, '_')}_${date}_${Date.now()}.${fileExt}`;
+                    
+                    params.append('waterCupImage', base64Data);
+                    params.append('waterCupFileName', waterCupFileName);
+                    params.append('waterCupMimeType', waterCupFile.type);
+                }
+
+                console.log('Sending data to Google Apps Script with URLSearchParams...');
+                console.log('Parameters:', Object.fromEntries(params.entries()));
+
+                // Send to Google Apps Script using URLSearchParams
+                const response = await fetch(CONFIG.SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString()
+                });
+
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse JSON:', parseError);
+                    console.error('Raw response:', responseText);
+                    throw new Error('ไม่สามารถประมวลผลข้อมูลจากเซิร์ฟเวอร์ได้');
+                }
+                
+                if (result && result.success) {
+                    showStatus('✅ บันทึกข้อมูลสำเร็จ!', 'success');
+                    document.getElementById('recordForm').reset();
+                    document.getElementById('lunchBoxUpload').value = '';
+                    document.getElementById('waterCupUpload').value = '';
+                    document.getElementById('lunchBoxPreview').classList.add('hidden');
+                    document.getElementById('waterCupPreview').classList.add('hidden');
+                    document.getElementById('lunchBoxFileName').textContent = '';
+                    document.getElementById('waterCupFileName').textContent = '';
+                    document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+                } else {
+                    const errorMsg = result ? result.message : 'ไม่ทราบสาเหตุ';
+                    throw new Error(errorMsg || 'เกิดข้อผิดพลาดในการบันทึก');
+                }
+            } catch (error) {
+                console.error('Error details:', error);
+                const errorMessage = error.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ';
+                showStatus('❌ เกิดข้อผิดพลาดในการบันทึก: ' + errorMessage, 'error');
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        async function loadSummary() {
+            const filterName = document.getElementById('filterName').value;
+            const filterMonth = document.getElementById('filterMonth').value;
+            
+            try {
+                const url = new URL(CONFIG.SCRIPT_URL);
+                url.searchParams.append('action', 'getSummary');
+                url.searchParams.append('sheetId', CONFIG.SHEET_ID);
+                url.searchParams.append('sheetName', CONFIG.SHEET_NAME);
+                if (filterName) url.searchParams.append('name', filterName);
+                if (filterMonth) url.searchParams.append('month', filterMonth);
+
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.success) {
+                    displaySummary(result.data);
+                } else {
+                    throw new Error(result.message || 'ไม่สามารถโหลดข้อมูลได้');
+                }
+            } catch (error) {
+                console.error('Error loading summary:', error);
+                document.getElementById('summaryDisplay').innerHTML = 
+                    '<div class="text-center text-red-500">❌ ไม่สามารถโหลดข้อมูลได้</div>';
+            }
+        }
+
+        function displaySummary(data) {
+            const summaryDiv = document.getElementById('summaryDisplay');
+            
+            if (!data || data.length === 0) {
+                summaryDiv.innerHTML = '<div class="text-center text-gray-500">ไม่มีข้อมูล</div>';
+                return;
+            }
+
+            // Count by name and total
+            const counts = {};
+            let totalLunchBox = 0;
+            let totalWaterCup = 0;
+            
+            data.forEach(record => {
+                if (!counts[record.name]) {
+                    counts[record.name] = { lunchBox: 0, waterCup: 0 };
+                }
+                if (record.lunchBoxUrl) {
+                    counts[record.name].lunchBox++;
+                    totalLunchBox++;
+                }
+                if (record.waterCupUrl) {
+                    counts[record.name].waterCup++;
+                    totalWaterCup++;
+                }
+            });
+
+            let html = '<div class="space-y-3">';
+            
+            // Total summary at the top
+            html += `
+                <div class="bg-gradient-to-r from-green-500 to-blue-500 text-white p-4 rounded-lg mb-4">
+                    <h3 class="font-bold text-lg mb-2">📊 สรุปรวมทั้งหมด</h3>
+                    <div class="flex justify-center space-x-6">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">🍱 ${totalLunchBox}</div>
+                            <div class="text-sm">กล่องข้าว</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">🥤 ${totalWaterCup}</div>
+                            <div class="text-sm">แก้วน้ำ</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Individual counts
+            for (const [name, count] of Object.entries(counts)) {
+                html += `
+                    <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                        <span class="font-semibold text-green-800">${name}</span>
+                        <div class="flex space-x-4 text-sm">
+                            <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded">🍱 ${count.lunchBox}</span>
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">🥤 ${count.waterCup}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            html += '</div>';
+            
+            summaryDiv.innerHTML = html;
+        }
+
+        function saveToLocalStorage(record) {
+            const records = JSON.parse(localStorage.getItem('lunchRecords') || '[]');
+            records.unshift(record);
+            localStorage.setItem('lunchRecords', JSON.stringify(records));
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function getMimeTypeExtension(mimeType) {
+            const mimeMap = {
+                'image/jpeg': 'jpg',
+                'image/jpg': 'jpg',
+                'image/png': 'png',
+                'image/gif': 'gif',
+                'image/webp': 'webp',
+                'image/bmp': 'bmp',
+                'image/tiff': 'tiff'
+            };
+            return mimeMap[mimeType] || 'jpg';
+        }
+
+        function setLoadingState(loading) {
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            if (loading) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-75');
+                submitText.textContent = 'กำลังบันทึก...';
+                loadingSpinner.classList.remove('hidden');
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-75');
+                submitText.textContent = '💾 บันทึกข้อมูล';
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-blue-100', 'text-blue-800');
+            
+            switch(type) {
+                case 'success':
+                    statusDiv.classList.add('bg-green-100', 'text-green-800');
+                    break;
+                case 'error':
+                    statusDiv.classList.add('bg-red-100', 'text-red-800');
+                    break;
+                case 'loading':
+                    statusDiv.classList.add('bg-blue-100', 'text-blue-800');
+                    break;
+            }
+            
+            statusDiv.textContent = message;
+            statusDiv.classList.add('fade-in');
+            
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    statusDiv.classList.add('hidden');
+                }, 5000);
+            }
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'957546072725c8e7',t:'MTc1MTE5ODUzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
