@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบันทึกข้อมูลกล่องข้าวและแก้วน้ำ</title>
+    <title>🍱บันทึกข้อมูลกล่องข้าว-แก้วน้ำ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -131,9 +131,9 @@
     <div class="container mx-auto px-4 py-6 max-w-3xl">
         <header class="text-center mb-8">
             <h1 class="text-3xl font-bold text-emerald-600">
-                <i class="fas fa-utensils mr-2"></i>ระบบบันทึกข้อมูลกล่องข้าวและแก้วน้ำ
+                <i class="fas fa-utensils mr-2"></i>🍱 กล่องข้าว 🥤แก้วน้ำ
             </h1>
-            <p class="text-gray-600 mt-2">บันทึกและติดตามการใช้งานอุปกรณ์</p>
+            <p class="text-gray-600 mt-2">เวชศาสตร์ฟื้นฟูหัวใจและปอด</p>
         </header>
         
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -153,8 +153,8 @@
                 <form id="record-form" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-user mr-2 text-emerald-500"></i>ชื่อ
+                             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                                👤 ชื่อ
                             </label>
                             <select id="name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="" disabled selected>เลือกชื่อ</option>
@@ -175,7 +175,7 @@
                         
                         <div>
                             <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-calendar-alt mr-2 text-emerald-500"></i>วันที่
+                                📅 วันที่
                             </label>
                             <input type="date" id="date" name="date" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
                         </div>
@@ -184,33 +184,33 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-box mr-2 text-emerald-500"></i>รูปกล่องข้าว
+                                🍱 รูปกล่องข้าว
                             </label>
                             <div class="image-preview" id="lunchbox-preview">
                                 <span class="image-preview-text">คลิกเพื่อเลือกรูปภาพ</span>
                             </div>
                             <input type="file" id="lunchbox-image" name="lunchbox-image" accept="image/*" class="hidden">
                             <button type="button" id="lunchbox-upload-btn" class="mt-2 w-full bg-emerald-100 text-emerald-700 py-2 px-4 rounded-md hover:bg-emerald-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                <i class="fas fa-camera mr-2"></i>เลือกรูปกล่องข้าว
+                                📷 เลือกรูปกล่องข้าว
                             </button>
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-glass-water mr-2 text-emerald-500"></i>รูปแก้วน้ำ
+                                🥤 รูปแก้วน้ำ
                             </label>
                             <div class="image-preview" id="cup-preview">
                                 <span class="image-preview-text">คลิกเพื่อเลือกรูปภาพ</span>
                             </div>
                             <input type="file" id="cup-image" name="cup-image" accept="image/*" class="hidden">
                             <button type="button" id="cup-upload-btn" class="mt-2 w-full bg-emerald-100 text-emerald-700 py-2 px-4 rounded-md hover:bg-emerald-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                <i class="fas fa-camera mr-2"></i>เลือกรูปแก้วน้ำ
+                                📷 เลือกรูปแก้วน้ำ
                             </button>
                         </div>
                     </div>
                     
                     <button type="submit" class="w-full bg-emerald-600 text-white py-3 px-6 rounded-md hover:bg-emerald-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
-                        <i class="fas fa-save mr-2"></i>บันทึกข้อมูล
+                        💾 บันทึกข้อมูล
                     </button>
                 </form>
             </div>
@@ -220,7 +220,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label for="summary-name" class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-user mr-2 text-emerald-500"></i>ชื่อ
+                                👤 ชื่อ
                             </label>
                             <select id="summary-name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="all">ทั้งหมด</option>
@@ -241,14 +241,14 @@
                         
                         <div>
                             <label for="summary-start-month" class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-calendar-alt mr-2 text-emerald-500"></i>เดือนเริ่มต้น
+                                📅 เดือนเริ่มต้น
                             </label>
                             <input type="month" id="summary-start-month" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
                         </div>
                         
                         <div>
                             <label for="summary-end-month" class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-calendar-alt mr-2 text-emerald-500"></i>เดือนสิ้นสุด
+                                📅 เดือนสิ้นสุด
                             </label>
                             <input type="month" id="summary-end-month" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
                         </div>
